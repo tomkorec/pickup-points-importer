@@ -106,24 +106,24 @@ class PickupPoint
         return $this;
     }
 
-    public function getType(): ?string
+    public function getType(): ?PickupPointType
     {
         return $this->type;
     }
 
-    public function setType(string $type): static
+    public function setType(PickupPointType $type): static
     {
         $this->type = $type;
 
         return $this;
     }
 
-    public function getStatus(): ?string
+    public function getStatus(): ?PickupPointStatus
     {
         return $this->status;
     }
 
-    public function setStatus(string $status): static
+    public function setStatus(PickupPointStatus $status): static
     {
         $this->status = $status;
 
