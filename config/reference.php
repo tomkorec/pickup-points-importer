@@ -701,6 +701,11 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         },
  *     },
  * }
+ * @psalm-type MakerConfig = array{
+ *     root_namespace?: scalar|Param|null, // Default: "App"
+ *     generate_final_classes?: bool|Param, // Default: true
+ *     generate_final_entities?: bool|Param, // Default: false
+ * }
  * @psalm-type DoctrineConfig = array{
  *     dbal?: array{
  *         default_connection?: scalar|Param|null,
@@ -896,6 +901,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         parameters?: ParametersConfig,
  *         services?: ServicesConfig,
  *         framework?: FrameworkConfig,
+ *         maker?: MakerConfig,
  *         doctrine?: DoctrineConfig,
  *     },
  *     "when@prod"?: array{
