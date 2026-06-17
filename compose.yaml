@@ -1,0 +1,15 @@
+services:
+  database:
+    image: mariadb:10.11
+    environment:
+      MARIADB_ROOT_PASSWORD: root
+      MARIADB_DATABASE: import_db
+      MARIADB_USER: app_user
+      MARIADB_PASSWORD: app_password
+    ports:
+      - "3306:3306"
+    volumes:
+      - import-db-data:/var/lib/mysql
+
+volumes:
+  import-db-data:

@@ -67,5 +67,8 @@
             "allow-contrib": false,
             "require": "8.1.*"
         }
+    },
+    "platform": {
+        "ext-pdo_mysql": "8.0"
     }
 }
