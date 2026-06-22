@@ -12,24 +12,20 @@ final class PickupPointFactory
 
         $pickupPoint = new PickupPoint();
 
-        $this->updateFromData($pickupPoint, $data);
+        $pickupPoint->setExternalId($data->id);
+        $pickupPoint->setCarrier($data->carrier->value);
+        $pickupPoint->setType($data->type);
+        $pickupPoint->setStatus($data->status);
+        $pickupPoint->setCity($data->city);
+        $pickupPoint->setName($data->name);
+        $pickupPoint->setAddress($data->address);
+        $pickupPoint->setZipCode($data->zipCode);
+        $pickupPoint->setCountry($data->country);
+        $pickupPoint->setLatitude($data->latitude);
+        $pickupPoint->setLongitude($data->longitude);
+        $pickupPoint->setOpeningHours($data->openingHours);
 
         return $pickupPoint;
     }
 
-    public function updateFromData(PickupPoint $point, PickupPointData $data): void
-    {
-        $point->setExternalId($data->id);
-        $point->setCarrier($data->carrier->value);
-        $point->setType($data->type);
-        $point->setStatus($data->status);
-        $point->setCity($data->city);
-        $point->setName($data->name);
-        $point->setAddress($data->address);
-        $point->setZipCode($data->zipCode);
-        $point->setCountry($data->country);
-        $point->setLatitude($data->latitude);
-        $point->setLongitude($data->longitude);
-        $point->setOpeningHours($data->openingHours);
-    }
 }
