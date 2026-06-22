@@ -55,13 +55,13 @@ final class GlsPickupPointFetcher implements PickupPointFetcher
                 carrier: Carrier::GLS,
                 type: $type,
                 status: PickupPointStatus::AVAILABLE, // no way to check if the pickup point is temporarily unavailable, so we assume it's always available
-                city: $item['@CityName'] ?? null,
-                name: $item['@Name'] ?? null,
-                address: $item['@Address'] ?? null,
-                zipCode: $item['@ZipCode'] ?? null,
+                city: $item['@CityName'],
+                name: $item['@Name'],
+                address: $item['@Address'],
+                zipCode: $item['@ZipCode'],
                 country: $country->getCode(),
-                latitude: isset($item['@GeoLat']) ? (float)$item['@GeoLat'] : null,
-                longitude: isset($item['@GeoLng']) ? (float)$item['@GeoLng'] : null,
+                latitude: (float)$item['@GeoLat'],
+                longitude: (float)$item['@GeoLng'],
                 openingHours: $this->parseOpeningHours($item['Openings'] ?? null),
             );
         }
