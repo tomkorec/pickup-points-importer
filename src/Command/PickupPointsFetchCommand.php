@@ -44,7 +44,7 @@ class PickupPointsFetchCommand extends Command
         );
 
         if ($carrier === 'All') {
-            $carriers = Carrier::cases();
+            $carriers = $supportedCarriers;
         } else {
             $carriers[] = Carrier::from($carrier);
         }
