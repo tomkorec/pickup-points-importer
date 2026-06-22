@@ -1,0 +1,97 @@
+<?php
+
+namespace App\PickupPoint\Fetcher;
+
+use App\Enum\Carrier;
+use App\Enum\PickupPointStatus;
+use App\Enum\PickupPointType;
+use App\Model\Country;
+use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
+
+final class GlsPickupPointFetcher implements PickupPointFetcher
+{
+    private const string API_URL = 'https://ps-maps.gls-czech.com/getDropoffPoints.php';
+
+    public function __construct(
+        private readonly HttpClientInterface $client,
+        private readonly SerializerInterface $serializer,
+    ) {}
+
+    public function fetch(?FetchConfig $config = null): iterable
+    {
+        $country = $config?->getCountry() ?: new Country('CZ');
+
+        $response = $this->client->request('GET', self::API_URL, [
+            'query' => [
+                'ctrcode' => $country->getCode(),
+            ],
+        ]);
+
+        $content = $response->getContent();
+
+        $dataArray = $this->serializer->decode($content, 'xml');
+
+        // assert that the country code in the response matches the requested country code
+        if ($dataArray['CtrCode'] !== $country->getCode()) {
+            throw new \RuntimeException(sprintf('The country code in the response (%s) does not match the requested country code (%s).', $dataArray['CtrCode'], $country->getCode()));
+        }
+
+        $items = $dataArray['Data']['DropoffPoint'] ?? [];
+
+
+        foreach ($items as $item) {
+            $type = $item['@IsParcelLocker'] === 1 ? PickupPointType::BOX : PickupPointType::POINT;
+
+            $id = $item['@Id'] ?? $item['@ID'] ?? null;
+
+            if (!isset($id)) {
+                continue; // skip pickup points with missing ID
+            }
+
+
+            yield new PickupPointData(
+                id: $id,
+                carrier: Carrier::GLS,
+                type: $type,
+                status: PickupPointStatus::AVAILABLE, // no way to check if the pickup point is temporarily unavailable, so we assume it's always available
+                city: $item['@CityName'] ?? null,
+                name: $item['@Name'] ?? null,
+                address: $item['@Address'] ?? null,
+                zipCode: $item['@ZipCode'] ?? null,
+                country: $country->getCode(),
+                latitude: isset($item['@GeoLat']) ? (float)$item['@GeoLat'] : null,
+                longitude: isset($item['@GeoLng']) ? (float)$item['@GeoLng'] : null,
+                openingHours: $this->parseOpeningHours($item['Openings'] ?? null),
+            );
+        }
+    }
+
+    public function carrier(): Carrier
+    {
+        return Carrier::GLS;
+    }
+
+    private function parseOpeningHours(array $openings): string|null
+    {
+        $days = $openings['Openings'] ?? null;
+
+
+        if (empty($days)) {
+            return null;
+        }
+
+        $openingHours = [];
+
+        foreach ($days as $day) {
+            $openingHours[] = sprintf(
+                '%s %s',
+                $day['@Day'],
+                $day['@OpenHours'],
+            );
+        }
+
+        return implode("\n", $openingHours);
+    }
+
+}
