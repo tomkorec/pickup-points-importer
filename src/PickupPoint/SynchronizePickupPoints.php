@@ -31,7 +31,10 @@ readonly class SynchronizePickupPoints
 
         $data = $fetcher->fetch();
 
-        $existingPickupPointIds = $this->pickupPointRepository->findIdsByCarrier($carrier);
+        $existingPickupPoints = $this->pickupPointRepository->findIdsByCarrier($carrier);
+
+        $existingPickupPointExternalIds = array_column($existingPickupPoints, 'externalId');
+        $existingPickupPointEntityIds = array_column($existingPickupPoints, 'id');
 
         /**
          * @var array<int> $fetchedPickupPointIds
@@ -44,7 +47,7 @@ readonly class SynchronizePickupPoints
         foreach ($data as $pickupPointData) {
             $fetchedPickupPointIds[] = $pickupPointData->id;
 
-            if (!in_array($pickupPointData->id, $existingPickupPointIds['externalId'], true)) {
+            if (!in_array($pickupPointData->id, $existingPickupPointExternalIds, true)) {
                 $pickupPoint = $this->factory->createFromData($pickupPointData);
 
                 $this->em->persist($pickupPoint);
@@ -54,17 +57,25 @@ readonly class SynchronizePickupPoints
 
             $existingId = array_search(
                 $pickupPointData->id,
-                array_column($existingPickupPointIds, 'externalId'),
+                $existingPickupPointEntityIds,
                 true,
             );
 
             $existingPickupPoint = $this->em->getReference(PickupPoint::class, $existingId);
-
+            
             $this->factory->updateFromData($existingPickupPoint, $pickupPointData);
         }
 
-        // Mark pickup points as terminated if they are no longer present in the fetched data
-        $pickupPointsToTerminate = array_diff($existingPickupPointIds, $fetchedPickupPointIds);
+        $this->em->flush();
+
+        $pickupPointsToTerminate = [];
+
+        // Any pickup points that exist in the database but are not present in the fetched data should be marked as terminated.
+        foreach ($existingPickupPoints as $existingPickupPoint) {
+            if (!in_array($existingPickupPoint['externalId'], $fetchedPickupPointIds, true)) {
+                $pickupPointsToTerminate[] = $existingPickupPoint['id'];
+            }
+        }
 
         $this->pickupPointRepository->terminatePickupPoints($pickupPointsToTerminate);
     }
