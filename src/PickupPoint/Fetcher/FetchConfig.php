@@ -10,10 +10,10 @@ use App\Model\Country;
 final readonly class FetchConfig
 {
     public function __construct(
-        public Country|null $country,
+        public Country $country,
     ) {}
 
-    public function getCountry(): Country|null
+    public function getCountry(): Country
     {
         return $this->country;
     }

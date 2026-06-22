@@ -14,7 +14,7 @@ interface PickupPointFetcher
     /**
      * @return iterable<PickupPointData>
      */
-    public function fetch(?FetchConfig $config = null): iterable;
+    public function fetch(FetchConfig $config): iterable;
 
     public function carrier(): Carrier;
 

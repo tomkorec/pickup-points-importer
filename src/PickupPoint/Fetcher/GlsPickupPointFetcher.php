@@ -7,7 +7,6 @@ namespace App\PickupPoint\Fetcher;
 use App\Enum\Carrier;
 use App\Enum\PickupPointStatus;
 use App\Enum\PickupPointType;
-use App\Model\Country;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
@@ -20,9 +19,9 @@ final class GlsPickupPointFetcher implements PickupPointFetcher
         private readonly SerializerInterface $serializer,
     ) {}
 
-    public function fetch(?FetchConfig $config = null): iterable
+    public function fetch(FetchConfig $config): iterable
     {
-        $country = $config?->getCountry() ?: new Country('CZ');
+        $country = $config?->getCountry();
 
         $response = $this->client->request('GET', self::API_URL, [
             'query' => [
