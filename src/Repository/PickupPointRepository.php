@@ -5,6 +5,7 @@ namespace App\Repository;
 use App\Entity\PickupPoint;
 use App\Enum\Carrier;
 use App\Enum\PickupPointStatus;
+use App\Model\Country;
 use App\PickupPoint\Fetcher\PickupPointData;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -19,11 +20,13 @@ class PickupPointRepository extends ServiceEntityRepository
         parent::__construct($registry, PickupPoint::class);
     }
 
-    public function findIdsByCarrier(Carrier $carrier): array
+    public function findIdsByCarrierAndCountry(Carrier $carrier, Country $country): array
     {
         $qb = $this->createQueryBuilder('p')
             ->select('p.id, p.externalId')
             ->where('p.carrier = :carrier')
+            ->andWhere('p.country = :country')
+            ->setParameter('country', $country->getCode())
             ->setParameter('carrier', $carrier);
 
         return $qb->getQuery()->getArrayResult();

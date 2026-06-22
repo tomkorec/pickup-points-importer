@@ -51,6 +51,12 @@ final class GlsPickupPointFetcher implements PickupPointFetcher
                 continue; // skip pickup points with missing ID
             }
 
+            // in case address is an int, we will assume it is a house number in the same city
+            $address = $item['@Address'];
+
+            if (is_int($item['@Address'])) {
+                $address = sprintf("%s %s", $item['@CityName'], $item['@Address']);
+            }
 
             yield new PickupPointData(
                 id: $id,
@@ -59,8 +65,8 @@ final class GlsPickupPointFetcher implements PickupPointFetcher
                 status: PickupPointStatus::AVAILABLE, // no way to check if the pickup point is temporarily unavailable, so we assume it's always available
                 city: $item['@CityName'],
                 name: $item['@Name'],
-                address: $item['@Address'],
-                zipCode: $item['@ZipCode'],
+                address: $address,
+                zipCode: (string)$item['@ZipCode'],
                 country: $country->getCode(),
                 latitude: (float)$item['@GeoLat'],
                 longitude: (float)$item['@GeoLng'],

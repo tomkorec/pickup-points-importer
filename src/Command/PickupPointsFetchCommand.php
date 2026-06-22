@@ -3,6 +3,7 @@
 namespace App\Command;
 
 use App\Enum\Carrier;
+use App\Model\Country;
 use App\PickupPoint\SynchronizePickupPoints;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -47,8 +48,15 @@ class PickupPointsFetchCommand extends Command
         }
 
         foreach ($carriers as $currentCarrier) {
+            $countryCode = $io->choice(
+                "Choose country",
+                $currentCarrier->countries(),
+            );
+
+            $country = new Country($countryCode);
+
             try {
-                ($this->synchronizePickupPoints)($currentCarrier);
+                ($this->synchronizePickupPoints)($currentCarrier, $country);
             } catch (\Throwable $e) {
                 $io->error(sprintf('An error occurred while fetching pickup points for carrier %s: %s', $currentCarrier->value, $e->getMessage()));
             }

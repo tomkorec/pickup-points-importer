@@ -2,9 +2,10 @@
 
 namespace App\PickupPoint;
 
-use App\Entity\PickupPoint;
 use App\Enum\Carrier;
 use App\Factory\PickupPointFactory;
+use App\Model\Country;
+use App\PickupPoint\Fetcher\FetchConfig;
 use App\PickupPoint\Fetcher\FetcherLocator;
 use App\PickupPoint\Fetcher\PickupPointData;
 use App\Repository\PickupPointRepository;
@@ -25,13 +26,15 @@ readonly class SynchronizePickupPoints
         private EntityManagerInterface $em
     ) {}
 
-    public function __invoke(Carrier $carrier): void
+    public function __invoke(Carrier $carrier, Country $country): void
     {
         $fetcher = $this->fetcherLocator->locate($carrier);
 
-        $data = $fetcher->fetch();
+        $data = $fetcher->fetch(
+            new FetchConfig($country)
+        );
 
-        $existingPickupPoints = $this->pickupPointRepository->findIdsByCarrier($carrier);
+        $existingPickupPoints = $this->pickupPointRepository->findIdsByCarrierAndCountry($carrier, $country);
 
         $existingByExternalId = [];
 
