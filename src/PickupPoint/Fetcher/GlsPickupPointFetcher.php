@@ -79,7 +79,7 @@ final class GlsPickupPointFetcher implements PickupPointFetcher
         return Carrier::GLS;
     }
 
-    private function parseOpeningHours(array $openings): string|null
+    private function parseOpeningHours(?array $openings): string|null
     {
         $days = $openings['Openings'] ?? null;
 
@@ -91,7 +91,7 @@ final class GlsPickupPointFetcher implements PickupPointFetcher
         $openingHours = [];
 
         foreach ($days as $day) {
-            if (!$day['@OpenHours']) {
+            if (empty($day['@OpenHours'])) {
                 continue;
             }
 
@@ -102,7 +102,7 @@ final class GlsPickupPointFetcher implements PickupPointFetcher
             );
         }
 
-        return implode("\n", $openingHours);
+        return $openingHours === [] ? null : implode("\n", $openingHours);
     }
 
 }
