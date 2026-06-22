@@ -19,6 +19,8 @@ use Doctrine\ORM\EntityManagerInterface;
  */
 readonly class SynchronizePickupPoints
 {
+    private const int BATCH_COUNT = 50;
+
     public function __construct(
         private PickupPointRepository  $pickupPointRepository,
         private FetcherLocator         $fetcherLocator,
@@ -60,7 +62,7 @@ readonly class SynchronizePickupPoints
 
                 $this->em->persist($pickupPoint);
 
-                if (++$i % 100 === 0) {
+                if (++$i % self::BATCH_COUNT === 0) {
                     $this->em->flush();
                     $this->em->clear();
                 }
@@ -73,7 +75,7 @@ readonly class SynchronizePickupPoints
 
             $this->pickupPointRepository->updateExistingPickupPoint($existingId, $pickupPointData);
 
-            if (++$i % 100 === 0) {
+            if (++$i % self::BATCH_COUNT === 0) {
                 $this->em->flush();
                 $this->em->clear();
             }
