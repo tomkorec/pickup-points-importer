@@ -27,10 +27,10 @@ final class SynchronizePickupPointsTest extends TestCase
     {
         $repository = $this->createMock(PickupPointRepository::class);
         $repository->method('findIdsByCarrierAndCountry')->willReturn([]);
-        $repository->expects(self::once())
+        $repository->expects($this->once())
             ->method('upsert')
-            ->with(self::callback(static fn (array $batch): bool => count($batch) === 1 && $batch[0]->id === 'A'));
-        $repository->expects(self::once())->method('terminatePickupPoints')->with([]);
+            ->with(self::callback(static fn(array $batch): bool => count($batch) === 1 && $batch[0]->id === 'A'));
+        $repository->expects($this->once())->method('terminatePickupPoints')->with([]);
 
         $synchronizer = $this->synchronizer($repository, $this->fetcherYielding([$this->point('A')]));
 
@@ -43,11 +43,11 @@ final class SynchronizePickupPointsTest extends TestCase
         $repository->method('findIdsByCarrierAndCountry')->willReturn([
             ['id' => 1, 'externalId' => 'A'],
         ]);
-        $repository->expects(self::once())
+        $repository->expects($this->once())
             ->method('upsert')
-            ->with(self::callback(static fn (array $batch): bool => count($batch) === 1 && $batch[0]->id === 'A'));
+            ->with(self::callback(static fn(array $batch): bool => count($batch) === 1 && $batch[0]->id === 'A'));
         // 'A' is present in the feed, so nothing is terminated.
-        $repository->expects(self::once())->method('terminatePickupPoints')->with([]);
+        $repository->expects($this->once())->method('terminatePickupPoints')->with([]);
 
         $synchronizer = $this->synchronizer($repository, $this->fetcherYielding([$this->point('A')]));
 
@@ -61,9 +61,9 @@ final class SynchronizePickupPointsTest extends TestCase
             ['id' => 1, 'externalId' => 'A'],
             ['id' => 2, 'externalId' => 'B'],
         ]);
-        $repository->expects(self::once())->method('upsert');
+        $repository->expects($this->once())->method('upsert');
         // 'B' exists in the database but is absent from the feed, so its id is terminated.
-        $repository->expects(self::once())->method('terminatePickupPoints')->with([2]);
+        $repository->expects($this->once())->method('terminatePickupPoints')->with([2]);
 
         $synchronizer = $this->synchronizer($repository, $this->fetcherYielding([$this->point('A')]));
 
@@ -75,7 +75,7 @@ final class SynchronizePickupPointsTest extends TestCase
         $country = new Country('CZ');
 
         $repository = $this->createMock(PickupPointRepository::class);
-        $repository->expects(self::once())
+        $repository->expects($this->once())
             ->method('findIdsByCarrierAndCountry')
             ->with(Carrier::GLS, self::identicalTo($country))
             ->willReturn([]);
@@ -98,7 +98,7 @@ final class SynchronizePickupPointsTest extends TestCase
 
         $repository = $this->createMock(PickupPointRepository::class);
         $repository->method('findIdsByCarrierAndCountry')->willReturn([]);
-        $repository->expects(self::exactly(3))->method('upsert');
+        $repository->expects($this->exactly(3))->method('upsert');
 
         $synchronizer = $this->synchronizer($repository, $this->fetcherYielding($points));
 
@@ -115,7 +115,7 @@ final class SynchronizePickupPointsTest extends TestCase
      *
      * @param list<PickupPointData> $points
      */
-    private function fetcherYielding(array $points)
+    private function fetcherYielding(array $points): PickupPointFetcher
     {
         return new class($points) implements PickupPointFetcher {
             public ?FetchConfig $receivedConfig = null;
