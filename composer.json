@@ -14,7 +14,10 @@
         "symfony/dotenv": "8.1.*",
         "symfony/flex": "^2",
         "symfony/framework-bundle": "8.1.*",
+        "symfony/http-client": "8.1.*",
+        "symfony/intl": "8.1.*",
         "symfony/runtime": "8.1.*",
+        "symfony/serializer": "8.1.*",
         "symfony/yaml": "8.1.*"
     },
     "require-dev": {
