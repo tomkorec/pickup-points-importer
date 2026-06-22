@@ -92,6 +92,10 @@ final class GlsPickupPointFetcher implements PickupPointFetcher
         $openingHours = [];
 
         foreach ($days as $day) {
+            if (!$day['@OpenHours']) {
+                continue;
+            }
+
             $openingHours[] = sprintf(
                 '%s %s',
                 $day['@Day'],
