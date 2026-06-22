@@ -16,4 +16,12 @@ enum Carrier: string
             self::SK_POSTA => 'Slovenská pošta',
         };
     }
+
+    public function supported(): bool
+    {
+        return match ($this) {
+            self::GLS => true,
+            default => false,
+        };
+    }
 }

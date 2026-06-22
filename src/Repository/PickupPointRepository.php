@@ -49,25 +49,38 @@ class PickupPointRepository extends ServiceEntityRepository
         $qb->getQuery()->execute();
     }
 
-    public function updatePickupPointFromData(PickupPointData $pickupPointData): void
+    public function updateExistingPickupPoint(PickupPoint $existingPickupPoint, PickupPointData $data): void
     {
-        $qb = $this->createQueryBuilder('p')
+        $this->createQueryBuilder('p')
             ->update()
+            ->set('p.externalId', ':externalId')
+            ->set('p.carrier', ':carrier')
+            ->set('p.type', ':type')
+            ->set('p.status', ':status')
+            ->set('p.city', ':city')
             ->set('p.name', ':name')
             ->set('p.address', ':address')
-            ->set('p.city', ':city')
-            ->set('p.postalCode', ':postalCode')
+            ->set('p.zipCode', ':zipCode')
             ->set('p.country', ':country')
+            ->set('p.latitude', ':latitude')
+            ->set('p.longitude', ':longitude')
+            ->set('p.openingHours', ':openingHours')
             ->where('p.id = :id')
-            ->setParameter('name', $pickupPointData->name)
-            ->setParameter('address', $pickupPointData->address)
-            ->setParameter('city', $pickupPointData->city)
-            ->setParameter('zipCode', $pickupPointData->zipCode)
-            ->setParameter('country', $pickupPointData->country)
-            ->setParameter('id', $pickupPointData->id);
-
-        $qb->getQuery()->execute();
+            ->setParameter('id', $existingPickupPoint->getId())
+            ->setParameter('externalId', $data->id)
+            ->setParameter('carrier', $data->carrier->value)
+            ->setParameter('type', $data->type)
+            ->setParameter('status', $data->status)
+            ->setParameter('city', $data->city)
+            ->setParameter('name', $data->name)
+            ->setParameter('address', $data->address)
+            ->setParameter('zipCode', $data->zipCode)
+            ->setParameter('country', $data->country)
+            ->setParameter('latitude', $data->latitude)
+            ->setParameter('longitude', $data->longitude)
+            ->setParameter('openingHours', $data->openingHours)
+            ->getQuery()
+            ->execute();
     }
-
 
 }

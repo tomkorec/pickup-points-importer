@@ -33,13 +33,18 @@ readonly class SynchronizePickupPoints
 
         $existingPickupPoints = $this->pickupPointRepository->findIdsByCarrier($carrier);
 
-        $existingPickupPointExternalIds = array_column($existingPickupPoints, 'externalId');
-        $existingPickupPointEntityIds = array_column($existingPickupPoints, 'id');
+        $existingByExternalId = [];
+
+        foreach ($existingPickupPoints as $point) {
+            $existingByExternalId[$point['externalId']] = $point['id'];
+        }
 
         /**
          * @var array<int> $fetchedPickupPointIds
          */
         $fetchedPickupPointIds = [];
+
+        $i = 0;
 
         /**
          * @var PickupPointData $pickupPointData
@@ -47,23 +52,30 @@ readonly class SynchronizePickupPoints
         foreach ($data as $pickupPointData) {
             $fetchedPickupPointIds[] = $pickupPointData->id;
 
-            if (!in_array($pickupPointData->id, $existingPickupPointExternalIds, true)) {
+            if (!array_key_exists($pickupPointData->id, $existingByExternalId)) {
                 $pickupPoint = $this->factory->createFromData($pickupPointData);
 
                 $this->em->persist($pickupPoint);
 
+                if (++$i % 100 === 0) {
+                    $this->em->flush();
+                    $this->em->clear();
+                }
+
                 continue;
             }
 
-            $existingId = array_search(
-                $pickupPointData->id,
-                $existingPickupPointEntityIds,
-                true,
-            );
+            // find the existing pickup point's entity ID using the external ID
+            $existingId = $existingByExternalId[$pickupPointData->id];
 
             $existingPickupPoint = $this->em->getReference(PickupPoint::class, $existingId);
-            
-            $this->factory->updateFromData($existingPickupPoint, $pickupPointData);
+
+            $this->pickupPointRepository->updateExistingPickupPoint($existingPickupPoint, $pickupPointData);
+
+            if (++$i % 100 === 0) {
+                $this->em->flush();
+                $this->em->clear();
+            }
         }
 
         $this->em->flush();

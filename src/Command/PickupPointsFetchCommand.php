@@ -26,7 +26,13 @@ class PickupPointsFetchCommand extends Command
 
         $carriers = [];
 
-        $choices = ['All', ...array_map(static fn(Carrier $carrier) => $carrier->value, Carrier::cases())];
+        $choices = [
+            'All',
+            ...array_map(
+                static fn(Carrier $carrier) => $carrier->value,
+                array_filter(Carrier::cases(), static fn(Carrier $carrier) => $carrier->supported())
+            ),
+        ];
 
         $carrier = $io->choice(
             'Which carrier do you want to fetch pickup points for?',
