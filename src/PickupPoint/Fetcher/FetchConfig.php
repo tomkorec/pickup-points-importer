@@ -13,8 +13,4 @@ final readonly class FetchConfig
         public Country $country,
     ) {}
 
-    public function getCountry(): Country
-    {
-        return $this->country;
-    }
 }

@@ -21,7 +21,7 @@ final class GlsPickupPointFetcher implements PickupPointFetcher
 
     public function fetch(FetchConfig $config): iterable
     {
-        $country = $config->getCountry();
+        $country = $config->country;
 
         $response = $this->client->request('GET', self::API_URL, [
             'query' => [
