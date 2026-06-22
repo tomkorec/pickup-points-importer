@@ -74,11 +74,6 @@ readonly class SynchronizePickupPoints
             $existingId = $existingByExternalId[$pickupPointData->id];
 
             $this->pickupPointRepository->updateExistingPickupPoint($existingId, $pickupPointData);
-
-            if (++$i % self::BATCH_COUNT === 0) {
-                $this->em->flush();
-                $this->em->clear();
-            }
         }
 
         $this->em->flush();
