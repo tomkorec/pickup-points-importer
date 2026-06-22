@@ -24,4 +24,16 @@ enum Carrier: string
             default => false,
         };
     }
+
+    /**
+     * @return array<string>
+     */
+    public function countries(): array
+    {
+        return match ($this) {
+            self::GLS => ["AT", "BE", "BG", "CZ", "DE", "DK", "ES", "FI", "FR", "GR", "HU", "HR", "IT", "LU",
+                "NL", "PL", "PT", "RO", "SK", "SI"],
+            default => []
+        };
+    }
 }

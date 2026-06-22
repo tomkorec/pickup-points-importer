@@ -49,7 +49,7 @@ class PickupPointRepository extends ServiceEntityRepository
         $qb->getQuery()->execute();
     }
 
-    public function updateExistingPickupPoint(PickupPoint $existingPickupPoint, PickupPointData $data): void
+    public function updateExistingPickupPoint(int $existingId, PickupPointData $data): void
     {
         $this->createQueryBuilder('p')
             ->update()
@@ -66,7 +66,7 @@ class PickupPointRepository extends ServiceEntityRepository
             ->set('p.longitude', ':longitude')
             ->set('p.openingHours', ':openingHours')
             ->where('p.id = :id')
-            ->setParameter('id', $existingPickupPoint->getId())
+            ->setParameter('id', $existingId)
             ->setParameter('externalId', $data->id)
             ->setParameter('carrier', $data->carrier->value)
             ->setParameter('type', $data->type)

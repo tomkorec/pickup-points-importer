@@ -68,9 +68,7 @@ readonly class SynchronizePickupPoints
             // find the existing pickup point's entity ID using the external ID
             $existingId = $existingByExternalId[$pickupPointData->id];
 
-            $existingPickupPoint = $this->em->getReference(PickupPoint::class, $existingId);
-
-            $this->pickupPointRepository->updateExistingPickupPoint($existingPickupPoint, $pickupPointData);
+            $this->pickupPointRepository->updateExistingPickupPoint($existingId, $pickupPointData);
 
             if (++$i % 100 === 0) {
                 $this->em->flush();
