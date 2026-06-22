@@ -43,7 +43,7 @@ final class GlsPickupPointFetcher implements PickupPointFetcher
 
 
         foreach ($items as $item) {
-            $type = $item['@IsParcelLocker'] === 1 ? PickupPointType::BOX : PickupPointType::POINT;
+            $type = (int)$item['@IsParcelLocker'] === 1 ? PickupPointType::BOX : PickupPointType::POINT;
 
             $id = $item['@Id'] ?? $item['@ID'] ?? null;
 
