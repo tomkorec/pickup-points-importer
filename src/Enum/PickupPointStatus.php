@@ -8,7 +8,7 @@ namespace App\Enum;
 enum PickupPointStatus: string
 {
     case AVAILABLE = 'available';
-    case TEMPORARY_UNAVAILABLE = 'temporary_unavailable';
+    case TEMPORARILY_UNAVAILABLE = 'temporarily_unavailable';
     case CLOSED = 'closed';
     case TERMINATED = 'terminated';
 }
