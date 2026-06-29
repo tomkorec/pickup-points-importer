@@ -107,3 +107,28 @@ The system is designed so that a new carrier requires no changes to the import f
    it serves in `countries()` (add a new case if needed).
 
 That's it — the command, locator and synchronization logic pick it up as-is.
+
+## Notes
+
+### String columns instead of MySQL `ENUM`
+
+`type` and `status` are stored as `VARCHAR`, not the MySQL `ENUM` type suggested by
+the reference schema. The application is PHP-driven and the allowed values are
+already modelled as backed enums (`PickupPointType`, `PickupPointStatus`), so the
+validation and typing live in the application layer. A database `ENUM` would only
+duplicate that contract while adding no value, and would make the set of values
+harder to evolve — adding or renaming one would need a schema migration
+(`ALTER TABLE`) instead of a code change. Doctrine maps the backed enums to plain
+string columns transparently.
+
+### Batched upsert instead of per-row ORM updates
+
+Synchronization originally fetched the existing points, decided per point whether to
+insert or update, and issued one ORM `UPDATE` for every existing point — N
+statements per run. Since the `(carrier, externalId, country)` unique key already
+defines a point's identity, that branching is unnecessary: a single batched
+`INSERT ... ON DUPLICATE KEY UPDATE` lets the database insert-or-update each point in
+one statement per batch. This removes the "does it already exist?" decision from the
+application (the database answers it via the unique key), cuts the number of
+round-trips, and makes reviving a previously terminated point fall out naturally —
+the upsert simply writes its current status back.
